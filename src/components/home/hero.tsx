@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { ChevronDown, MessageSquare, PlusCircle, Settings, LogOut, Send, Menu, X, ChevronRight, ArrowLeft } from 'lucide-react';
+import {MessageSquare, PlusCircle, Settings, LogOut, Send, Menu, ArrowLeft } from 'lucide-react';
 
 const Hero = () => {
   const [messages, setMessages] = useState([
@@ -14,7 +14,7 @@ const Hero = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   
   
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (inputValue.trim() === '') return;
     
