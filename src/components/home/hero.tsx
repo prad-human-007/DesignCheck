@@ -43,7 +43,7 @@ const Hero = () => {
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    let assistantMessage = "";
+
   
     const read = async () => {
       while (true) {
@@ -51,7 +51,7 @@ const Hero = () => {
         if (done) break;
   
         const chunk = decoder.decode(value, { stream: true });
-        assistantMessage += chunk;
+     
   
         // Optional: stream updates to the UI
         setMessages(prevMessages => {
