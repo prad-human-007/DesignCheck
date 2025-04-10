@@ -2,14 +2,15 @@
 
 import React, { useState } from 'react';
 import {MessageSquare, PlusCircle, Settings, LogOut, Send, Menu, ArrowLeft } from 'lucide-react';
+import Markdown from 'react-markdown'
+
+type Message = {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
 
 const Hero = () => {
-  const [messages, setMessages] = useState([
-    { id: 1, content: "Hello! How can I help you today?", isUser: false },
-    { id: 2, content: "I'd like to learn about React and Tailwind.", isUser: true },
-    { id: 3, content: "Great choice! React is a JavaScript library for building user interfaces, and Tailwind CSS is a utility-first CSS framework that makes styling much faster.", isUser: false },
-  ]);
-  
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   
@@ -19,10 +20,9 @@ const Hero = () => {
     if (inputValue.trim() === '') return;
     
     // Add user message
-    const newUserMessage = {
-      id: messages.length + 1,
+    const newUserMessage: Message = {
+      role: 'user' ,
       content: inputValue,
-      isUser: true
     };
     
     setMessages([...messages, newUserMessage]);
@@ -36,9 +36,42 @@ const Hero = () => {
       body: JSON.stringify({ messages: [...messages, newUserMessage] }),
     });
 
-    const data = await response.json();
-    console.log("Response from server:", data);
-    setMessages(prevMessages => [...prevMessages, { id: prevMessages.length + 1, content: data.message, isUser: false }]);
+    if (!response.ok || !response.body) {
+      console.error("Failed to get response stream");
+      return;
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let assistantMessage = "";
+  
+    const read = async () => {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+  
+        const chunk = decoder.decode(value, { stream: true });
+        assistantMessage += chunk;
+  
+        // Optional: stream updates to the UI
+        setMessages(prevMessages => {
+          const updated = [...prevMessages];
+          const last = updated[updated.length - 1];
+          if (last?.role === 'assistant') {
+            last.content += chunk;
+          } else {
+            updated.push({ role: 'assistant', content: chunk });
+          }
+          return [...updated];
+        });
+      }
+    };
+
+    await read();
+
+    // const data = await response.json();
+    // console.log("Response from server:", data);
+    // setMessages(prevMessages => [...prevMessages, { role: 'assistant', content: data.message }]);
 
   };
   
@@ -117,10 +150,10 @@ const Hero = () => {
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4 bg-gray-500">
           <div className="max-w-3xl mx-auto space-y-6">
-            {messages.map(message => (
-              <div key={message.id} className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}>
-                <div className={`p-4 rounded-lg max-w-xl ${message.isUser ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-800'}`}>
-                  {message.content}
+            {messages.map((message, index) => (
+              <div key={index} className={`flex ${message.role == 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`p-4 rounded-lg max-w-xl ${message.role == 'user' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-800'}`}>
+                  <Markdown>{message.content}</Markdown>
                 </div>
               </div>
             ))}
