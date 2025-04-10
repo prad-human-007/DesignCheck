@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import {Send, Menu, ArrowLeft } from 'lucide-react';
+import {Send, Menu, ArrowLeft, LoaderPinwheel } from 'lucide-react';
 import Markdown from 'react-markdown'
 import { Sidebar } from './Sidebar';
 
@@ -14,10 +14,11 @@ const Hero = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+  const [fetchingResponse, setFetchingResponse] = useState(false);
   
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    setFetchingResponse(true);
     e.preventDefault();
     if (inputValue.trim() === '') return;
     
@@ -37,6 +38,7 @@ const Hero = () => {
       },
       body: JSON.stringify({ messages: [...messages, newUserMessage] }),
     });
+    setFetchingResponse(false);
 
     if (!response.ok || !response.body) {
       console.error("Failed to get response stream");
@@ -74,7 +76,7 @@ const Hero = () => {
     // const data = await response.json();
     // console.log("Response from server:", data);
     // setMessages(prevMessages => [...prevMessages, { role: 'assistant', content: data.message }]);
-
+    
   };
   
   const pastConversations = [
@@ -113,6 +115,15 @@ const Hero = () => {
                 </div>
               </div>
             ))}
+            <div className='flex justify-start'>
+              {fetchingResponse==true? <LoaderPinwheel color='magenta' className='animate-spin'/> : null}
+            </div>
+            {/* Auto-scroll to bottom */}
+            <div ref={(el) => {
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+              }
+            }} />
           </div>
         </div>
         
