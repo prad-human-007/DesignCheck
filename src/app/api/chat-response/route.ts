@@ -52,12 +52,12 @@ export async function POST(req: Request) {
         // console.log("Points: ", points.points);
         // Join all the points 
         context = points.points.map(point => point.payload!.text).join("\n");
-        console.log("Context: ", context);
+        // console.log("Context: ", context);
     } else {
         console.error("Vector embeddings are undefined or empty.");
     }
 
-    messages[messages.length - 1].content = last_message + "\n Answer the above question using the context provided below" + context;
+    messages[messages.length - 1].content = last_message + "\n Return response in markdown format so it will look pretty on user side. Add bullte points Headings, subheadings if necessary.  Answer the above question using the context provided below" + context;
     
     const response = await openai.chat.completions.create({
         model: "gemini-2.0-flash",

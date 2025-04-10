@@ -13,7 +13,7 @@ interface SidebarProps {
 export function Sidebar({isSidebarOpen, pastConversations} : SidebarProps) {
     return (
 
-        <div className={`${isSidebarOpen ? 'w-64' : 'w-0'} bg-gray-900 text-white transition-all duration-300 ease-in-out overflow-hidden flex flex-col`}>
+        <div className={`${isSidebarOpen ? 'w-64' : 'w-0'} bg-[#0f0f0f] text-white transition-all duration-300 ease-in-out overflow-hidden flex flex-col`}>
         {/* New Chat Button */}
         <button className="flex items-center space-x-2 p-4 border border-gray-700 rounded-md m-3 hover:bg-gray-800">
             <PlusCircle size={18} />
